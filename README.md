@@ -1,4 +1,4 @@
-# ML.ImportExcel · Excel 导入解析组件
+# ML.ImportExcel · Excel 导入解析组件（支持多语言方案 + 自定义配置）
 
 一个面向 **.NET 5 / .NET 6 / .NET 7 / .NET 8 / .NET 9（ASP.NET Core）** 的 NuGet 组件，
 用于实现 **Excel 导入配置 → 列头加载 → 实体字段绑定 → 数据解析输出 JSON** 的完整闭环。
