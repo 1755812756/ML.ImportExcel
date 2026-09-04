@@ -1,0 +1,37 @@
+# ============ .NET / C# 构建产物 ============
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+*.dll
+*.exe
+*.pdb
+*.cache
+*.nupkg
+*.snupkg
+*.paket.addins
+*.log
+artifacts/
+
+# ============ 运行期生成 ============
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+*.sqlite
+ExcelLang/
+
+# ============ IDE / 用户文件 ============
+.vs/
+.idea/
+.vscode/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*_i.c
+*_p.c
+*.ncrunch*
+*.dotCover
+TestResults/
+publish/

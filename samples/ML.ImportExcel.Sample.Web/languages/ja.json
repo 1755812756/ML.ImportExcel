@@ -1,0 +1,8 @@
+{
+  "parse.completed": "解析が完了しました。合計 {0} 行、成功 {1} 行、失敗 {2} 行。",
+  "parse.completedTooMany": "解析が完了しました。合計 {0} 行、成功 {1} 行、失敗 {2} 行（エラーが多いため最初の {3} 件のみ表示）。",
+  "field.required": "必須フィールドが空です",
+  "field.formatError": "フィールドの形式エラー：{0}",
+  "type.invalidDecimal": "有効な数値ではありません (Decimal)",
+  "type.invalidDateTime": "有効な日時ではありません"
+}

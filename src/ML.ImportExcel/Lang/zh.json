@@ -1,0 +1,20 @@
+{
+  "parse.completed": "解析完成，共 {0} 行，成功 {1} 行，失败 {2} 行。",
+  "parse.completedTooMany": "解析完成，共 {0} 行，成功 {1} 行，失败 {2} 行（错误过多，仅展示前 {3} 条）。",
+  "parse.failed": "解析失败。",
+  "parse.noConfig": "尚未配置任何导入配置，请先在配置页导入模板 Excel 并绑定实体字段。",
+  "parse.configNotFound": "未找到名为“{0}”的导入配置。",
+  "parse.sheetNotFound": "无法定位配置对应的工作表。",
+  "parse.noMatch": "无法匹配任何导入配置：请先在配置页中为实体绑定字段。",
+  "parse.lowMatch": "列头匹配度不足（命中 {0}/{1}，得分 {2:P0}，阈值 {3:P0}），可能选择了错误的文件或需要补充绑定字段。",
+  "field.required": "必填字段为空",
+  "field.formatError": "字段格式错误：{0}",
+  "type.invalidInt": "不是有效的整数",
+  "type.invalidLong": "不是有效的整数(Long)",
+  "type.invalidDouble": "不是有效的数值(Double)",
+  "type.invalidDecimal": "不是有效的数值(Decimal)",
+  "type.invalidDateTime": "不是有效的日期时间",
+  "type.invalidBool": "不是有效的布尔值",
+  "type.invalidNumber": "数值无效",
+  "template.noSheet": "工作簿中没有可用的工作表。"
+}

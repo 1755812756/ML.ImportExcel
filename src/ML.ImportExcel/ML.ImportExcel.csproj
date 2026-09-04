@@ -1,0 +1,66 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!-- 面向 .NET 5/6/7/8/9（均含 ASP.NET Core 网页注入）；net10 在 .NET 10 SDK 下自动追加 -->
+    <TargetFrameworks>net5.0;net6.0;net7.0;net8.0;net9.0</TargetFrameworks>
+    <TargetFrameworks Condition="$([MSBuild]::VersionGreaterThanOrEquals('$(NETCoreSdkVersion)', '10.0.0'))">$(TargetFrameworks);net10.0</TargetFrameworks>
+    <LangVersion>latest</LangVersion>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <AssemblyName>ML.ImportExcel</AssemblyName>
+    <RootNamespace>ML.ImportExcel</RootNamespace>
+
+    <!-- NuGet 打包元数据 -->
+    <PackageId>ML.ImportExcel</PackageId>
+    <Version>1.0.4</Version>
+    <Authors>ML.Import</Authors>
+    <Company>ML.Import</Company>
+    <Product>ML.ImportExcel</Product>
+    <Title>ML.ImportExcel — Excel 导入解析（多语言方案 / 自定义配置）</Title>
+    <Description>Excel 导入解析组件：多语言 + 自定义配置的一体化 Excel 导入方案。
+面向 .NET 5/6/7/8/9（.NET 10 在 .NET 10 SDK 下自动追加）：模板 Excel → 加载列头 → 绑定实体字段 → SQLite 保存映射；
+解析时传 Excel 即可按列头自动匹配实体/配置（A~D / A~E / A~F 超集报表也能精确区分）或显式指定配置；
+内置多语言(en/zh)并自动生成到运行目录 ExcelLang 的 JSON，改词条/加语系无需重新编译，解析支持按语系返回；
+ASP.NET Core 下 UseExcelImport() 一键注入配置网页(/excelimport)：文件夹树分组、字段类型/必填自定义、错误携带单元格坐标与原始值；库路径/挂载路径/语言目录/匹配阈值等均可配置。</Description>
+    <PackageTags>excel;import;excel-import;npoi;sqlite;middleware;aspnetcore;multilanguage;i18n;localization;net5;net6;net7;net8;net9;net10;custom-config</PackageTags>
+    <PackageReadmeFile>NuGetReadme.md</PackageReadmeFile>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);CS1591;NU1701</NoWarn>
+    <SuppressDependenciesWhenPacking>false</SuppressDependenciesWhenPacking>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <!-- .NET 5 已停止官方支持(EOL)；关闭 NETSDK1138 提示，仅为既有 .NET 5 应用保留兼容资产 -->
+    <CheckEolTargetFramework>false</CheckEolTargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="NPOI" Version="2.7.1" />
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="8.0.11" />
+    <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="2.1.10" />
+  </ItemGroup>
+
+  <!-- net5.0~net10.0 目标：引用 ASP.NET Core 共享框架以支持中间件/网页注入 -->
+  <ItemGroup Condition="'$(TargetFramework)' == 'net5.0' Or '$(TargetFramework)' == 'net6.0' Or '$(TargetFramework)' == 'net7.0' Or '$(TargetFramework)' == 'net8.0' Or '$(TargetFramework)' == 'net9.0' Or '$(TargetFramework)' == 'net10.0'">
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <!-- 嵌入式网页资源 -->
+  <ItemGroup>
+    <EmbeddedResource Include="Web\excelimport-page.html">
+      <LogicalName>ML.ImportExcel.Web.excelimport-page.html</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <!-- 多语言消息 JSON（内置 en / zh 等；也支持外部语言包目录扩展） -->
+  <ItemGroup>
+    <EmbeddedResource Include="Lang\*.json">
+      <LogicalName>ML.ImportExcel.Lang.%(Filename).json</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <!-- 打包 NuGet 包说明 README（在 nuget.org / VS 包管理器中展示） -->
+  <ItemGroup>
+    <None Include="..\..\NuGetReadme.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+</Project>

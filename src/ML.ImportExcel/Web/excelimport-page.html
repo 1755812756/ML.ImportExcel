@@ -1,0 +1,1036 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{TITLE}}</title>
+<style>
+  :root{
+    --primary:#2563eb; --primary-dark:#1d4ed8; --danger:#dc2626; --ok:#16a34a;
+    --bg:#eef2f7; --card:#ffffff; --border:#e2e8f0; --text:#0f172a; --muted:#64748b;
+    --radius:10px; --accent-soft:#eff6ff;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Segoe UI","Microsoft YaHei",system-ui,sans-serif;background:var(--bg);color:var(--text)}
+  header{background:linear-gradient(135deg,#1e3a8a,#2563eb);color:#fff;padding:14px 22px;display:flex;align-items:baseline;gap:16px;flex-wrap:wrap}
+  header h1{font-size:18px;margin:0;font-weight:600}
+  header .sub{font-size:13px;opacity:.85}
+  main.layout{max-width:1280px;margin:18px auto;padding:0 16px;display:grid;grid-template-columns:250px minmax(0,1fr);gap:16px;align-items:start}
+  .layout > aside,.layout > section,.panel{min-width:0}
+  @media (max-width:700px){ main.layout{grid-template-columns:1fr} }
+  .panel{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;box-shadow:0 1px 3px rgba(15,23,42,.06)}
+  .sectionTitle{font-size:14px;font-weight:600;margin:2px 0 12px;color:#1e3a8a;border-left:4px solid var(--primary);padding-left:10px;display:inline-block}
+  select,input[type=text],input[type=number],input[type=file]{
+    padding:7px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:#fff;color:var(--text)
+  }
+  select:focus,input:focus{outline:2px solid rgba(37,99,235,.35);border-color:var(--primary)}
+  label.lbl{font-size:12px;color:var(--muted);display:block;margin-bottom:4px}
+  .frow{display:flex;gap:12px;flex-wrap:wrap}
+  .fitem{display:flex;flex-direction:column;min-width:150px}
+  .fitem.wide{flex:2;min-width:240px}
+  button{cursor:pointer;border:1px solid var(--border);background:#fff;padding:7px 13px;border-radius:8px;font-size:13px;transition:.15s}
+  button:hover{background:#f8fafc}
+  button.primary{background:var(--primary);border-color:var(--primary);color:#fff}
+  button.primary:hover{background:var(--primary-dark)}
+  button.danger{background:#fff;border-color:#fecaca;color:var(--danger)}
+  button.danger:hover{background:#fef2f2}
+  button:disabled{opacity:.45;cursor:not-allowed}
+  button.small{padding:4px 9px;font-size:12px}
+  .uploadRow{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:8px 0 12px}
+  .hint{font-size:12px;color:var(--muted)}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th,td{border:1px solid var(--border);padding:6px 8px;text-align:left;vertical-align:middle}
+  th{background:#f8fafc;color:#334155;font-weight:600;white-space:nowrap}
+  td input[type=text],td select{width:100%;min-width:110px}
+  td input[type=text]{padding:6px 8px}
+  td .colidx{color:var(--muted);font-size:12px;text-align:center}
+  .actions{margin-top:14px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .msg{padding:10px 12px;border-radius:8px;font-size:13px;margin:10px 0;display:none;border:1px solid transparent}
+  .msg.show{display:block}
+  .msg.ok{background:#f0fdf4;border-color:#bbf7d0;color:#166534}
+  .msg.err{background:#fef2f2;border-color:#fecaca;color:#991b1b}
+  .msg.info{background:#eff6ff;border-color:#bfdbfe;color:#1e40af}
+  .summary{background:#f8fafc;border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-size:13px;margin:8px 0;line-height:1.6}
+  pre{background:#0f172a;color:#e2e8f0;padding:14px;border-radius:8px;overflow:auto;max-height:520px;font-size:12px;line-height:1.5;margin:0}
+  .empty{padding:16px;text-align:center;color:var(--muted);font-size:13px}
+  .badge{display:inline-block;background:#eff6ff;color:#1e40af;border-radius:999px;padding:2px 10px;font-size:12px;margin-left:8px}
+  #statusEl{position:fixed;top:16px;right:16px;z-index:99;display:none;background:#111827;color:#fff;padding:10px 16px;border-radius:8px;font-size:13px;max-width:380px;box-shadow:0 4px 12px rgba(0,0,0,.2)}
+  footer{text-align:center;color:var(--muted);font-size:12px;padding:14px}
+
+  /* ------- 树形导航 ------- */
+  .treePanel{position:sticky;top:16px;max-height:calc(100vh - 40px);display:flex;flex-direction:column}
+  .treeHead{margin-bottom:10px}
+  .treeBtns{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+  .treeHint{font-size:12px;color:var(--muted);background:#f8fafc;border:1px dashed var(--border);border-radius:8px;padding:6px 9px;margin-bottom:8px;line-height:1.5}
+  .tree{overflow:auto;flex:1}
+  .node{display:flex;align-items:center;gap:6px;padding:6px 8px;border-radius:7px;cursor:pointer;user-select:none;white-space:nowrap;font-size:13px}
+  .node:hover{background:#f1f5f9}
+  .node.selected{background:var(--accent-soft);box-shadow:inset 2px 0 0 var(--primary);font-weight:600}
+  .node .caret{width:14px;text-align:center;color:var(--muted);flex:none}
+  .node .icon{flex:none}
+  .node .nm{overflow:hidden;text-overflow:ellipsis}
+  .node em{font-style:normal;color:var(--muted);font-size:12px}
+  .node .cnt{color:var(--muted);font-size:11px;background:#e2e8f0;border-radius:999px;padding:0 7px;margin-left:auto}
+  .kids{margin-left:18px;border-left:1px dashed var(--border);padding-left:4px}
+  .edHead{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:4px}
+  .edHead .sectionTitle{margin-bottom:0}
+
+  /* ------- 自绘模态弹窗（替代 prompt/confirm，兼容 iframe/内嵌预览）------- */
+  .modal-mask{position:fixed;inset:0;background:rgba(15,23,42,.45);display:none;align-items:center;justify-content:center;z-index:200}
+  .modal-mask.show{display:flex}
+  .modal{background:#fff;border-radius:10px;padding:18px 20px;width:min(430px,92vw);box-shadow:0 12px 40px rgba(0,0,0,.25);font-size:13px}
+  .modal h3{margin:0 0 8px;font-size:15px;color:var(--text)}
+  .modal p{margin:0 0 10px;color:var(--muted);line-height:1.6;white-space:pre-line}
+  .modal input[type=text]{width:100%;padding:9px 10px;font-size:14px}
+  .mBtns{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
+  .mBtns button{padding:8px 16px}
+
+  /* ------- 增强：树搜索 / 列过滤 / 单配置导出导入 ------- */
+  .searchbox{display:flex;gap:6px;align-items:center;margin:2px 0 8px}
+  .searchbox input{flex:1;min-width:0}
+  .searchbox .hint{white-space:nowrap}
+  mark{background:#fde68a;color:#78350f;border-radius:3px;padding:0 1px}
+  .trItem{border:1px solid transparent}
+  .trItem:hover{background:#eef6ff}
+  .trPath{font-size:11px;color:var(--muted);padding:0 8px 5px 30px;line-height:1.4}
+  .bindHide{display:none}
+  .actions button#btnExportCfg,.actions button#btnImportCfg{padding:7px 12px}
+</style>
+</head>
+<body>
+<header>
+  <h1>📊 {{TITLE}}</h1>
+  <span class="sub">挂载路径：<code>{{MOUNT}}</code> · 树形文件夹分组 · 数据存储：SQLite</span>
+</header>
+<div id="statusEl"></div>
+
+<main class="layout">
+
+  <!-- ============ 左侧：配置树 ============ -->
+  <aside class="panel treePanel">
+    <div class="treeHead">
+      <span class="sectionTitle">配置树</span>
+      <div class="searchbox">
+        <input type="text" id="treeSearch" placeholder="🔍 搜索文件夹 / 配置…" autocomplete="off">
+      </div>
+      <div class="treeBtns">
+        <button id="btnNewCfg" title="在所选文件夹下新建配置（不选则放根目录）">＋ 配置</button>
+        <button id="btnNewFolder" title="在所选文件夹下新建子文件夹">＋ 文件夹</button>
+        <button id="btnRenameFolder" class="small" title="重命名所选文件夹" disabled>改名</button>
+        <button id="btnDelFolder" class="small danger" title="删除所选文件夹（其中的配置移至根目录）" disabled>删除夹</button>
+      </div>
+      <div class="treeHint" id="treeHint">📁 点击文件夹进行分组管理；点击下方“＋配置”将在所选位置新建。点击配置可查看并修改。</div>
+    </div>
+    <div id="tree" class="tree"><div class="empty">加载中…</div></div>
+    <div id="treeResults" class="tree" style="display:none"></div>
+  </aside>
+
+  <!-- ============ 右侧：编辑器 + 试解析 ============ -->
+  <section class="content" style="display:grid;gap:16px">
+
+    <!-- 配置编辑器 -->
+    <div class="panel editorPanel">
+      <div class="edHead">
+        <div>
+          <span class="sectionTitle">配置编辑器</span>
+          <span id="editorMeta" class="badge">新配置</span>
+        </div>
+        <div>
+          <button id="btnDeleteCfg" class="danger small" disabled>删除当前配置</button>
+        </div>
+      </div>
+
+      <div class="frow" style="margin:2px 0 12px">
+        <div class="fitem">
+          <label class="lbl">所属文件夹</label>
+          <select id="folderSel"><option value="">（根目录）</option></select>
+        </div>
+        <div class="fitem">
+          <label class="lbl">配置名称 *（唯一，用于标识实体/模板）</label>
+          <input type="text" id="cfgName" placeholder="如：学生信息导入">
+        </div>
+        <div class="fitem">
+          <label class="lbl">实体名称</label>
+          <input type="text" id="entityName" placeholder="如：Student">
+        </div>
+        <div class="fitem wide">
+          <label class="lbl">描述</label>
+          <input type="text" id="desc" placeholder="可选说明">
+        </div>
+      </div>
+
+      <div class="frow" style="margin-bottom:6px">
+        <div class="fitem">
+          <label class="lbl">工作表</label>
+          <select id="sheetSel"><option value="">（载入 Excel 后选择）</option></select>
+        </div>
+        <div class="fitem">
+          <label class="lbl">列头所在行号（从 0 开始）</label>
+          <input type="number" id="headerRow" value="0" min="0" style="width:110px">
+        </div>
+        <div class="fitem">
+          <label class="lbl">已绑定字段数</label>
+          <input type="text" id="boundCount" value="0" readonly style="background:#f8fafc;width:80px">
+        </div>
+      </div>
+
+      <div class="uploadRow">
+        <input type="file" id="templateFile" accept=".xlsx,.xls">
+        <button id="btnLoadHeader" class="primary">① 载入 Excel 列头</button>
+        <span id="tmplInfo" class="hint">上传模板 Excel（含表头），系统读取列头后供你绑定实体字段。</span>
+      </div>
+
+      <div class="searchbox">
+        <input type="text" id="bindSearch" placeholder="🔍 按“Excel 列头 / 绑定字段名”过滤…" autocomplete="off">
+        <button id="btnClearBindSearch" class="small" style="display:none">清除</button>
+        <span id="bindCountInfo" class="hint"></span>
+      </div>
+
+      <div style="overflow:auto;max-height:400px">
+        <table id="bindTable">
+          <thead>
+            <tr>
+              <th style="width:44px">列</th>
+              <th style="min-width:150px">Excel 列头</th>
+              <th style="min-width:130px">示例值</th>
+              <th style="min-width:160px">绑定实体字段名</th>
+              <th style="width:110px">类型</th>
+              <th style="width:60px">必填</th>
+              <th style="width:52px">操作</th>
+            </tr>
+          </thead>
+          <tbody id="bindTbody"><tr><td colspan="7" class="empty">尚未加载列头。选择配置或点“＋配置”后上传 Excel 模板载入列头。</td></tr></tbody>
+        </table>
+      </div>
+
+      <div class="actions">
+        <button id="btnSave" class="primary">💾 保存配置</button>
+        <button id="btnExportCfg" title="把“当前编辑的配置”导出为 JSON（备份 / 迁移到正式环境后导入）">⬇ 导出配置</button>
+        <button id="btnImportCfg" title="从 JSON 载入“单个配置”到编辑器（预览后点“保存配置”写入）">⬆ 导入配置</button>
+        <input type="file" id="importCfgFile" accept=".json,application/json" style="display:none">
+        <span id="saveMsg" class="msg"></span>
+      </div>
+    </div>
+
+    <!-- 试解析 -->
+    <div class="panel">
+      <div class="sectionTitle">试解析（传入 Excel → 自动匹配实体 → 返回 JSON）</div>
+      <div class="uploadRow">
+        <select id="parseLang" style="min-width:170px" title="解析结果返回消息的语系（无对应语言包时自动回退英文）">
+          <option value="">返回语系：默认(English)</option>
+          <option value="en">English</option>
+          <option value="zh-CN">简体中文</option>
+        </select>
+        <select id="parseConfig" style="min-width:180px"><option value="">（自动匹配实体）</option></select>
+        <input type="file" id="dataFile" accept=".xlsx,.xls">
+        <button id="btnParse" class="primary">② 开始解析</button>
+      </div>
+      <div id="parseSummary" class="summary" style="display:none"></div>
+      <pre id="jsonResult" style="display:none"></pre>
+      <div id="parseEmpty" class="empty">上传待解析的 Excel 数据文件并点击“开始解析”。系统将依据列头自动匹配已保存的实体/配置，输出 JSON。</div>
+    </div>
+
+  </section>
+</main>
+
+<footer>ML.ImportExcel · Excel 导入解析组件 · 列头绑定配置以文件夹分组存储于 SQLite</footer>
+
+<!-- ============ 自绘模态弹窗 ============ -->
+<div class="modal-mask" id="modalMask">
+  <div class="modal" role="dialog" aria-modal="true">
+    <h3 id="mTitle">提示</h3>
+    <p id="mMsg" style="display:none"></p>
+    <input type="text" id="mInput" style="display:none" placeholder="">
+    <div class="mBtns">
+      <button id="mCancel">取消</button>
+      <button id="mOk" class="primary">确定</button>
+    </div>
+  </div>
+</div>
+
+<script>
+"use strict";
+/* ================= 工具 ================= */
+var BASE = location.pathname;
+if (BASE.length > 1 && BASE.charAt(BASE.length - 1) === "/") BASE = BASE.slice(0, -1);
+function api(suffix){ return BASE.replace(/\/+$/,"") + "/api/" + suffix; }
+function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c];}); }
+function norm(s){ return String(s==null?"":s).trim().toLowerCase().replace(/[\s\u3000]+/g,""); }
+function toast(msg, type){
+  var el = document.getElementById("statusEl");
+  el.style.background = type==="err" ? "#dc2626" : "#16a34a";
+  el.textContent = msg;
+  el.style.display = "block";
+  clearTimeout(toast._t);
+  toast._t = setTimeout(function(){ el.style.display = "none"; }, 2600);
+}
+function showMsg(id, text, cls){
+  var el = document.getElementById(id);
+  el.textContent = text;
+  el.className = "msg show " + (cls || "info");
+}
+function clearMsg(id){ var el=document.getElementById(id); el.className="msg"; el.textContent=""; }
+function fmtVal(v){
+  if(v===null || v===undefined) return "";
+  if(typeof v === "object" && v instanceof Date) return v.toLocaleString();
+  return String(v);
+}
+function $(id){ return document.getElementById(id); }
+
+/* ================= 状态 ================= */
+var configs = [];
+var folders = [];
+var currentId = 0;              // 0 = 未保存的新配置
+var selectedFolderId = null;    // 树中选中的文件夹（决定“＋配置/＋文件夹”位置）
+var columns = [];               // 由载入 Excel 得到
+var bindings = [];              // 列头绑定 [{index,header,field,type,required}]
+var sheetNames = [];
+var loadedFromConfig = false;
+
+/* ================= DOM ================= */
+var $tree=$("tree"), $treeHint=$("treeHint"), $folderSel=$("folderSel"),
+    $cfgName=$("cfgName"), $entityName=$("entityName"), $desc=$("desc"),
+    $sheetSel=$("sheetSel"), $headerRow=$("headerRow"), $boundCount=$("boundCount"),
+    $bindTbody=$("bindTbody"), $parseConfig=$("parseConfig"), $tmplInfo=$("tmplInfo"),
+    $editorMeta=$("editorMeta");
+var $btnNewCfg=$("btnNewCfg"), $btnNewFolder=$("btnNewFolder"),
+    $btnRenameFolder=$("btnRenameFolder"), $btnDelFolder=$("btnDelFolder"),
+    $btnDeleteCfg=$("btnDeleteCfg"), $btnLoadHeader=$("btnLoadHeader"),
+    $btnSave=$("btnSave"), $btnParse=$("btnParse"),
+    $jsonResult=$("jsonResult"), $parseSummary=$("parseSummary"), $parseEmpty=$("parseEmpty");
+
+/* ================= 数据加载 ================= */
+function fetchConfigs(){
+  return fetch(api("configs"), { headers:{ "Accept":"application/json" } })
+    .then(function(r){ return r.json(); })
+    .then(function(list){
+      configs = Array.isArray(list) ? list : [];
+      var ph = ['<option value="">（自动匹配实体）</option>'];
+      configs.forEach(function(c){
+        ph.push('<option value="'+esc(c.name)+'">'+esc(c.name+(c.entityName?"（"+c.entityName+"）":""))+"</option>");
+      });
+      $parseConfig.innerHTML = ph.join("");
+      return list;
+    });
+}
+function fetchFolders(){
+  return fetch(api("folders"), { headers:{ "Accept":"application/json" } })
+    .then(function(r){ return r.json(); })
+    .then(function(list){
+      folders = Array.isArray(list) ? list : [];
+      return list;
+    });
+}
+/* 并行刷新全部数据并重绘树/文件夹下拉 */
+function refreshAll(){
+  return Promise.all([fetchConfigs(), fetchFolders()])
+    .then(function(){
+      renderTree();
+      renderFolderOptions();
+      syncEditorMeta();
+    })
+    .catch(function(e){ toast("加载数据失败："+e.message,"err"); });
+}
+
+/* 文件夹辅助 */
+function childFolders(pid){ var p=pid||null; return folders.filter(function(f){ return (f.parentId||null)===p; })
+    .sort(function(a,b){ return (a.name||"").localeCompare(b.name||"","zh"); }); }
+function configsInFolder(pid){ var p=pid||null; return configs.filter(function(c){ return (c.folderId||null)===p; }); }
+function folderById(id){ for(var i=0;i<folders.length;i++) if(folders[i].id===id) return folders[i]; return null; }
+function folderPathNames(id){
+  var names=[], cur=folderById(id), guard=0;
+  while(cur && guard++<50){ names.unshift(cur.name); cur = cur.parentId!=null ? folderById(cur.parentId) : null; }
+  return names;
+}
+
+/* ================= 树渲染 ================= */
+function folderHtml(folder){
+  var kidsF = childFolders(folder.id), kidsC = configsInFolder(folder.id);
+  var hasKids = kidsF.length>0 || kidsC.length>0;
+  var sel = selectedFolderId===folder.id ? " selected":"";
+  var h = '<div class="fnode">';
+  h += '<div class="node f-row'+sel+'" data-kind="folder" data-id="'+folder.id+'">'
+     + '<span class="caret">'+(hasKids?"▾":"·")+'</span><span class="icon">📁</span>'
+     + '<span class="nm">'+esc(folder.name)+'</span>'
+     + (kidsC.length?'<span class="cnt">'+kidsC.length+'</span>':"")
+     + '</div>';
+  if(hasKids){
+    h += '<div class="kids">';
+    kidsF.forEach(function(f){ h += folderHtml(f); });
+    kidsC.forEach(function(c){ h += cfgHtml(c); });
+    h += '</div>';
+  }
+  return h + '</div>';
+}
+function cfgHtml(c){
+  var act = currentId===c.id ? " selected":"";
+  return '<div class="node cfg-row'+act+'" data-kind="cfg" data-id="'+c.id+'">'
+     + '<span class="caret">·</span><span class="icon">📄</span>'
+     + '<span class="nm">'+esc(c.name)+'</span>'
+     + (c.entityName?'<em>('+esc(c.entityName)+')</em>':"")
+     + '</div>';
+}
+function renderTree(){
+  var rootF = childFolders(null), rootC = configsInFolder(null);
+  if(rootF.length===0 && rootC.length===0){
+    $tree.innerHTML = '<div class="empty">暂无配置。<br>点上方“＋ 文件夹”建分组，或“＋ 配置”新建导入配置。</div>';
+    return;
+  }
+  var h = "";
+  rootF.forEach(function(f){ h += folderHtml(f); });
+  rootC.forEach(function(c){ h += cfgHtml(c); });
+  $tree.innerHTML = h || '<div class="empty">（空）</div>';
+  updateFolderHint();
+}
+
+function updateFolderHint(){
+  var path = selectedFolderId==null ? "根目录" : (folderPathNames(selectedFolderId).join(" / ") || "根目录");
+  var hasFolder = selectedFolderId!=null;
+  $treeHint.innerHTML = "选中：" + (hasFolder ? "📁 "+esc(path) : "（无文件夹，位于根目录）") +
+    "<br>新建配置 / 文件夹将放入该位置；点击配置可查看与修改。" +
+    (hasFolder ? "<br>可用“改名 / 删除夹”管理该文件夹。" : "<br>选中一个文件夹后可对其进行“改名 / 删除夹”。");
+  $btnRenameFolder.disabled = !hasFolder;
+  $btnDelFolder.disabled = !hasFolder;
+}
+
+/* 树点击（事件委托） */
+$tree.addEventListener("click", function(e){
+  var node = e.target.closest ? e.target.closest(".node") : null;
+  if(!node) return;
+  var kind = node.getAttribute("data-kind");
+  var id = Number(node.getAttribute("data-id"));
+  if(kind==="cfg"){
+    selectConfig(id);
+  } else if(kind==="folder"){
+    var kidsEl = node.nextElementSibling;
+    var toggled = false;
+    if(kidsEl && kidsEl.classList.contains("kids")){
+      var caret = node.querySelector(".caret");
+      var open = kidsEl.style.display !== "none";
+      kidsEl.style.display = open ? "none" : "";
+      if(caret) caret.textContent = open ? "▸" : "▾";
+      toggled = true;
+    }
+    selectedFolderId = (selectedFolderId===id) ? null : id;
+    if(toggled) renderTree();
+    // 若当前是“新配置”且尚未填写名称，则把“所属文件夹”下拉跟随到该文件夹，方便直接保存
+    if(currentId===0 && !$cfgName.value.trim()){
+      $folderSel.value = selectedFolderId==null ? "" : String(selectedFolderId);
+    }
+    updateFolderHint();
+    syncEditorMeta();
+    if(toggled===false){ renderTree(); }
+  }
+});
+
+/* ================= 文件夹下拉（编辑器中） ================= */
+function renderFolderOptions(){
+  function walk(pid, depth){
+    childFolders(pid).forEach(function(f){
+      var opt = document.createElement("option");
+      opt.value = String(f.id);
+      opt.textContent = new Array(depth+1).join("　") + "📁 " + f.name;
+      $folderSel.appendChild(opt);
+      walk(f.id, depth+1);
+    });
+  }
+  $folderSel.innerHTML = '<option value="">（根目录）</option>';
+  walk(null, 0);
+  syncFolderSel();
+}
+function syncFolderSel(){
+  if(currentId===0){
+    $folderSel.value = selectedFolderId==null ? "" : String(selectedFolderId);
+  } else {
+    var cfg = currentConfig();
+    if(cfg) $folderSel.value = cfg.folderId==null ? "" : String(cfg.folderId);
+  }
+}
+function currentConfig(){
+  for(var i=0;i<configs.length;i++) if(configs[i].id===currentId) return configs[i];
+  return null;
+}
+
+/* ================= 配置选择/新建 ================= */
+function selectConfig(id){
+  id = Number(id||0);
+  clearMsg("saveMsg");
+  if(id===0){ newConfig(); return; }
+  currentId = id;
+  var cfg = currentConfig();
+  if(!cfg){ newConfig(); return; }
+  $cfgName.value = cfg.name || "";
+  $entityName.value = cfg.entityName || "";
+  $desc.value = cfg.description || "";
+  $headerRow.value = cfg.headerRowIndex || 0;
+  sheetNames = [];
+  fillSheetSel(cfg.sheetName || "");
+  columns = [];
+  bindings = (cfg.fields || []).map(function(f){
+    return { index:f.columnIndex, header:f.header||"", field:f.field||"", type:f.dataType||"string", required:!!f.required };
+  });
+  loadedFromConfig = true;
+  renderBindings();
+  syncFolderSel();
+  syncEditorMeta();
+  renderTree(); // 高亮当前配置节点
+  $tmplInfo.textContent = "已加载配置「"+cfg.name+"」的绑定。如需按新的模板重新绑定，请上传 Excel 后点“载入 Excel 列头”。";
+  toast("已打开配置："+cfg.name);
+}
+
+function newConfig(){
+  currentId = 0;
+  $cfgName.value=""; $entityName.value=""; $desc.value="";
+  $headerRow.value="0";
+  sheetNames=[]; columns=[]; bindings=[]; loadedFromConfig=false;
+  fillSheetSel("");
+  renderBindings();
+  syncFolderSel();
+  syncEditorMeta();
+  renderTree();
+  clearMsg("saveMsg");
+  $tmplInfo.textContent = "上传模板 Excel（含表头），系统读取列头后供你绑定实体字段。";
+  toast("已进入新建配置模式");
+}
+
+function syncEditorMeta(){
+  if(currentId===0){
+    var folderName = selectedFolderId==null ? "根目录" : (folderPathNames(selectedFolderId).join(" / ") || "根目录");
+    $editorMeta.textContent = "新配置（保存位置：📁 "+folderName+"）";
+    $editorMeta.className = "badge";
+    $btnDeleteCfg.disabled = true;
+  } else {
+    var cfg = currentConfig();
+    $editorMeta.textContent = "已载入配置 #"+currentId+" "+((cfg&&cfg.name)||"");
+    $editorMeta.className = "badge";
+    $btnDeleteCfg.disabled = false;
+  }
+}
+
+function fillSheetSel(selected){
+  var html = ['<option value="">（载入 Excel 后选择）</option>'];
+  sheetNames.forEach(function(s){ html.push('<option value="'+esc(s)+'">'+esc(s)+"</option>"); });
+  $sheetSel.innerHTML = html.join("");
+  if(selected) $sheetSel.value = selected;
+}
+
+/* ================= 绑定表 ================= */
+function renderBindings(){
+  updateBoundCount();
+  var noDataMsg = bindings.length===0
+    ? (loadedFromConfig ? "该配置尚未绑定任何字段。" : "尚未加载列头。选择配置或点“＋配置”后上传 Excel 模板载入列头。")
+    : "";
+
+  if ($btnClearBindSearch) $btnClearBindSearch.style.display = bindKeyword ? "" : "none";
+
+  if (bindings.length===0){
+    $bindTbody.innerHTML = '<tr><td colspan="7" class="empty">' + esc(noDataMsg) + "</td></tr>";
+    if ($bindCountInfo) $bindCountInfo.textContent = "";
+    return;
+  }
+
+  // 过滤仅“视觉隐藏”行（bindHide），保证“保存/导出”仍包含全部列及未保存的编辑内容
+  var matched = bindings.length;
+  var rows = [];
+  bindings.forEach(function(b){
+    var i = bindings.indexOf(b);
+    var show = true;
+    if (bindKeyword){
+      show = (String(b.header||"").toLowerCase().indexOf(bindKeyword) > -1)
+          || (String(b.field||"").toLowerCase().indexOf(bindKeyword) > -1);
+    }
+    if (!show) matched--;
+    rows.push("<tr"+(show?"":" class=\"bindHide\"")+">");
+    rows.push('<td class="colidx">'+b.index+"</td>");
+    rows.push('<td><input type="text" class="bHeader" data-i="'+i+'" value="'+esc(b.header)+'"></td>');
+    rows.push('<td class="hint">'+esc(fmtVal(sampleValue(b.index)))+"</td>");
+    rows.push('<td><input type="text" class="bField" data-i="'+i+'" value="'+esc(b.field)+'" placeholder="实体字段名，如 Name"></td>');
+    rows.push('<td><select class="bType" data-i="'+i+'">' + typeOptions(b.type) + "</select></td>");
+    rows.push('<td style="text-align:center"><input type="checkbox" class="bReq" data-i="'+i+'"'+(b.required?" checked":"")+"></td>");
+    rows.push('<td style="text-align:center"><button type="button" class="small danger rowDel" data-i="'+i+'" title="删除该列的绑定">✕</button></td>');
+    rows.push("</tr>");
+  });
+  $bindTbody.innerHTML = rows.join("");
+
+  if ($bindCountInfo){
+    $bindCountInfo.textContent = bindKeyword
+      ? ("共 "+bindings.length+" 列 · 匹配 "+matched+" 列")
+      : ("共 "+bindings.length+" 列");
+  }
+}
+function sampleValue(index){
+  if(columns.length===0) return "";
+  var c = null;
+  for(var i=0;i<columns.length;i++) if(columns[i].index===index){ c=columns[i]; break; }
+  return c && c.sample!=null ? c.sample : "";
+}
+function typeOptions(sel){
+  var types=["string","int","long","double","decimal","datetime","bool"];
+  var labels={string:"文本",int:"整数",long:"长整数",double:"小数",decimal:"金额(Decimal)",datetime:"日期时间",bool:"布尔"};
+  var h=['<option value="">自动</option>'];
+  types.forEach(function(t){ h.push('<option value="'+t+'"'+(sel===t?" selected":"")+">"+labels[t]+"</option>"); });
+  return h.join("");
+}
+function updateBoundCount(){
+  var n=0;
+  bindings.forEach(function(b){ if(b.field && b.field.trim()!=="") n++; });
+  $boundCount.value = String(n);
+}
+function collectBindings(){
+  var out=[];
+  var rows = $bindTbody.querySelectorAll("tr");
+  for(var i=0;i<rows.length;i++){
+    var bi=rows[i].querySelector(".bHeader"), fi=rows[i].querySelector(".bField"),
+        ti=rows[i].querySelector(".bType"), ri=rows[i].querySelector(".bReq");
+    if(!bi||!fi) continue;
+    var idx=Number(bi.getAttribute("data-i"));
+    var b=bindings[idx]; if(!b) continue;
+    b.header=bi.value.trim(); b.field=fi.value.trim();
+    if(ti) b.type=ti.value;
+    if(ri) b.required=ri.checked;
+    out.push(b);
+  }
+  bindings=out;
+  updateBoundCount();
+  return bindings;
+}
+
+/* ================= 载入模板列头 ================= */
+function loadTemplate(file){
+  if(!file){ toast("请先选择 Excel 文件","err"); return Promise.reject(); }
+  var fd=new FormData();
+  fd.append("file",file);
+  var hr=parseInt($headerRow.value||"0",10);
+  fd.append("headerRow",isNaN(hr)?0:hr);
+  $btnLoadHeader.disabled=true; $btnLoadHeader.textContent="读取中…";
+  return fetch(api("templates/preview"),{ method:"POST", body:fd })
+    .then(function(r){ return r.json(); })
+    .then(function(p){
+      if(p.message && (!p.columns || p.columns.length===0)) throw new Error(p.message||"未能读取到列头");
+      sheetNames = p.sheetNames||[];
+      var old = bindings.slice();
+      columns=(p.columns||[]).map(function(c){
+        var sample=null, sr=(p.sampleRows&&p.sampleRows[0])||null;
+        if(sr && sr.length>c.index) sample=sr[c.index];
+        return { index:c.index, text:c.text, sample:sample };
+      });
+      bindings=columns.map(function(c){
+        var found=null;
+        for(var i=0;i<old.length;i++){
+          if(old[i].header && norm(old[i].header)===norm(c.text)){ found=old[i]; break; }
+        }
+        if(!found){
+          for(var j=0;j<old.length;j++){
+            if(old[j].index===c.index && norm(old[j].header||"")===norm(c.text)){ found=old[j]; break; }
+          }
+        }
+        return found
+          ? { index:c.index, header:c.text, field:found.field||"", type:found.type||"string", required:!!found.required }
+          : { index:c.index, header:c.text, field:"", type:"string", required:false };
+      });
+      var preferred = sheetNames.length? sheetNames[0] : "";
+      if(p.sheetName) preferred=p.sheetName;
+      fillSheetSel(preferred);
+      loadedFromConfig=false;
+      renderBindings();
+      $tmplInfo.textContent="已读取 "+p.columns.length+" 个列头"+(p.dataRowCount?"，"+p.dataRowCount+" 行数据":"")+"。请在“绑定实体字段名”列填写实体属性名。";
+      toast("列头读取成功："+p.columns.length+" 列");
+      return p;
+    })
+    .catch(function(e){ toast("载入失败："+e.message,"err"); })
+    .finally(function(){ $btnLoadHeader.disabled=false; $btnLoadHeader.textContent="① 载入 Excel 列头"; });
+}
+
+/* ================= 保存 / 删除 配置 ================= */
+function buildConfig(){
+  collectBindings();
+  var name=$cfgName.value.trim();
+  if(!name){ toast("配置名称不能为空","err"); $cfgName.focus(); return null; }
+  var fid = $folderSel.value ? Number($folderSel.value) : null;
+  var cfg={
+    id: currentId,
+    folderId: fid,
+    name: name,
+    entityName: $entityName.value.trim(),
+    description: $desc.value.trim(),
+    sheetIndex: 0,
+    sheetName: $sheetSel.value || "",
+    headerRowIndex: parseInt($headerRow.value||"0",10)||0,
+    fields: bindings
+      .filter(function(b){ return b.header || (b.field && b.field.trim()); })
+      .map(function(b){ return { columnIndex:b.index, header:b.header, field:b.field, required:!!b.required, dataType:b.type||"" }; })
+  };
+  return cfg;
+}
+function saveConfig(){
+  var cfg=buildConfig();
+  if(!cfg) return;
+  $btnSave.disabled=true;
+  fetch(api("configs"),{ method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(cfg) })
+    .then(function(r){ return r.json().then(function(j){ return {ok:r.ok, j:j}; }); })
+    .then(function(res){
+      if(!res.ok || (res.j && res.j.success===false)) throw new Error((res.j&&res.j.message)||"保存失败");
+      currentId=res.j.id;
+      showMsg("saveMsg","已保存配置「"+res.j.name+"」（Id="+res.j.id+"，绑定字段 "+(res.j.fields||[]).filter(function(f){return f.field;}).length+" 个）","ok");
+      return refreshAll();
+    })
+    .then(function(){ syncFolderSel(); })
+    .catch(function(e){ showMsg("saveMsg","保存失败："+e.message,"err"); })
+    .finally(function(){ $btnSave.disabled=false; });
+}
+function deleteCurrentConfig(){
+  if(currentId===0){ toast("当前为新配置，无需删除","info"); return; }
+  var cfg=currentConfig();
+  var msg="将删除配置「"+((cfg&&cfg.name)||currentId)+"」及其字段映射。此操作不可撤销。";
+  askConfirm("删除配置", msg).then(function(ok){
+    if(!ok) return;
+    fetch(api("configs/"+currentId),{ method:"DELETE" })
+      .then(function(r){ return r.json(); })
+      .then(function(j){
+        if(j && j.success===false) throw new Error(j.message||"删除失败");
+        toast("已删除配置");
+        currentId=0;
+        return refreshAll();
+      })
+      .catch(function(e){ toast("删除失败："+e.message,"err"); });
+  });
+}
+
+/* ================= 文件夹操作 ================= */
+function newConfigHere(){
+  // 将“所属文件夹”下拉预置为树中所选文件夹，然后新建
+  $folderSel.value = selectedFolderId==null ? "" : String(selectedFolderId);
+  newConfig();
+  $cfgName.focus();
+}
+function createFolder(){
+  var parent = selectedFolderId;
+  var parentName = parent==null ? "根目录" : (folderPathNames(parent).join(" / "));
+  askText("新建文件夹", "在「"+parentName+"」下新建文件夹，请输入名称：", "").then(function(name){
+    if(name==null) return;               // 取消
+    name = (name||"").trim();
+    if(!name){ toast("文件夹名称不能为空","err"); return; }
+    fetch(api("folders"),{ method:"POST", headers:{"Content-Type":"application/json"},
+          body:JSON.stringify({ name:name, parentId:parent }) })
+      .then(function(r){ return r.json().then(function(j){ return {ok:r.ok, j:j}; }); })
+      .then(function(res){
+        if(!res.ok || (res.j && res.j.success===false)) throw new Error((res.j&&res.j.message)||"新建失败");
+        selectedFolderId = res.j.id;
+        return refreshAll();
+      })
+      .then(function(){ toast("已创建文件夹："+name); })
+      .catch(function(e){ toast("新建文件夹失败："+e.message,"err"); });
+  });
+}
+function renameFolder(){
+  if(selectedFolderId==null){ toast("请先在树中点击一个文件夹","info"); return; }
+  var cur=folderById(selectedFolderId);
+  if(!cur) return;
+  askText("重命名文件夹", "请输入新的文件夹名称：", cur.name).then(function(name){
+    if(name==null) return;
+    name=(name||"").trim();
+    if(!name){ toast("名称不能为空","err"); return; }
+    fetch(api("folders"),{ method:"POST", headers:{"Content-Type":"application/json"},
+          body:JSON.stringify({ id:cur.id, name:name, parentId:cur.parentId }) })
+      .then(function(r){ return r.json().then(function(j){ return {ok:r.ok, j:j}; }); })
+      .then(function(res){
+        if(!res.ok || (res.j && res.j.success===false)) throw new Error((res.j&&res.j.message)||"重命名失败");
+        return refreshAll();
+      })
+      .then(function(){ toast("已重命名文件夹"); })
+      .catch(function(e){ toast("重命名失败："+e.message,"err"); });
+  });
+}
+function deleteFolder(){
+  if(selectedFolderId==null){ toast("请先在树中点击一个文件夹","info"); return; }
+  var cur=folderById(selectedFolderId);
+  if(!cur) return;
+  var cnt=configsInFolder(selectedFolderId).length;
+  var msg="将删除文件夹「"+cur.name+"」及其所有子文件夹；";
+  msg += cnt>0 ? "其中 "+cnt+" 个配置将移动到根目录。" : "该文件夹下没有直接配置。";
+  askConfirm("删除文件夹", msg).then(function(ok){
+    if(!ok) return;
+    fetch(api("folders/"+selectedFolderId),{ method:"DELETE" })
+      .then(function(r){ return r.json(); })
+      .then(function(j){
+        if(j && j.success===false) throw new Error(j.message||"删除失败");
+        selectedFolderId=null;
+        return refreshAll();
+      })
+      .then(function(){ toast("文件夹已删除，配置移至根目录"); })
+      .catch(function(e){ toast("删除文件夹失败："+e.message,"err"); });
+  });
+}
+
+/* ================= 试解析 ================= */
+function parseFile(file){
+  if(!file){ toast("请先选择待解析的 Excel 文件","err"); return; }
+  var fd=new FormData();
+  fd.append("file",file);
+  var lang=$("parseLang").value;
+  if(lang) fd.append("language",lang);
+  var cn=$parseConfig.value;
+  if(cn) fd.append("configName",cn);
+  $btnParse.disabled=true; $btnParse.textContent="解析中…";
+  fetch(api("parse"),{ method:"POST", body:fd })
+    .then(function(r){ return r.json(); })
+    .then(function(res){
+      $parseEmpty.style.display="none";
+      $jsonResult.style.display="block";
+      $parseSummary.style.display="block";
+      var cls=res.success?"✅ 成功":"❌ 失败";
+      var ent=res.entityName?"实体："+res.entityName:"";
+      var cfg=res.configName?"配置："+res.configName:"";
+      var score=typeof res.matchScore==="number"?("命中率："+Math.round(res.matchScore*100)+"%"):"";
+      $parseSummary.innerHTML="<b>"+cls+"</b> "+esc([cfg,ent,score].filter(Boolean).join(" · "))
+        +"<br>总行数："+(res.totalRows||0)+"，成功："+(res.successRows||0)+"，失败："+(res.errorRows||0)
+        +"<br><span class=\"hint\">"+esc(res.message||"")+"</span>";
+      var errs=res.errors||[];
+      if(errs.length){
+        $parseSummary.innerHTML+="<br><b>校验错误（前 "+Math.min(errs.length,20)+" 条）：</b><br>";
+        $parseSummary.innerHTML+=errs.slice(0,20).map(function(e){
+          var loc = (e.sheet? esc(e.sheet)+"!" : "") + (e.cell ? esc(e.cell) : ("第 "+e.rowNumber+" 行"));
+          var h = e.columnHeader ? " · 列头："+esc(e.columnHeader) : "";
+          var rv = (e.rawValue!=null && e.rawValue!=="") ? " · 原值："+esc(e.rawValue) : "";
+          return "· "+loc+" [字段 "+(e.field||"?")+"]"+h+rv+"："+esc(e.message);
+        }).join("<br>");
+      }
+      $jsonResult.textContent=JSON.stringify(res,null,2);
+      toast("解析完成："+(res.successRows||0)+" 行成功", res.success?"ok":"err");
+    })
+    .catch(function(e){
+      $parseEmpty.style.display="block";
+      $parseEmpty.textContent="解析失败："+e.message;
+    })
+    .finally(function(){ $btnParse.disabled=false; $btnParse.textContent="② 开始解析"; });
+}
+
+/* ================= 自绘模态弹窗（替代 prompt/confirm） ================= */
+var _modalCb = null;
+function openModal(){ $("modalMask").classList.add("show"); }
+function closeModal(){ $("modalMask").classList.remove("show"); _modalCb = null; }
+function askText(title, message, defValue){
+  return new Promise(function(resolve){
+    var inp = $("mInput");
+    inp.style.display = "";
+    inp.value = defValue == null ? "" : defValue;
+    $("mMsg").textContent = message || "";
+    $("mMsg").style.display = message ? "" : "none";
+    $("mTitle").textContent = title;
+    openModal();
+    _modalCb = resolve;
+    setTimeout(function(){ inp.focus(); inp.select(); }, 30);
+  });
+}
+function askConfirm(title, message){
+  return new Promise(function(resolve){
+    $("mInput").style.display = "none";
+    $("mMsg").style.display = "";
+    $("mMsg").textContent = message || "";
+    $("mTitle").textContent = title;
+    openModal();
+    _modalCb = resolve;
+  });
+}
+(function initModal(){
+  function onOk(){
+    var cb = _modalCb;
+    var inp = $("mInput");
+    var val = inp.style.display === "none" ? true : inp.value;
+    closeModal();
+    if (cb) cb(val);
+  }
+  function onCancel(){
+    var cb = _modalCb;
+    closeModal();
+    if (cb) cb(null);
+  }
+  $("mOk").addEventListener("click", onOk);
+  $("mCancel").addEventListener("click", onCancel);
+  $("modalMask").addEventListener("click", function(e){ if (e.target === this) onCancel(); });
+  $("mInput").addEventListener("keydown", function(e){
+    if (e.key === "Enter"){ e.preventDefault(); e.stopPropagation(); onOk(); }
+  });
+  document.addEventListener("keydown", function(e){
+    if (e.key === "Escape" && $("modalMask").classList.contains("show")) onCancel();
+  });
+})();
+
+/* ================= 事件绑定 ================= */
+$btnNewCfg.addEventListener("click", newConfigHere);
+$btnNewFolder.addEventListener("click", createFolder);
+$btnRenameFolder.addEventListener("click", renameFolder);
+$btnDelFolder.addEventListener("click", deleteFolder);
+$btnDeleteCfg.addEventListener("click", deleteCurrentConfig);
+$btnLoadHeader.addEventListener("click", function(){ loadTemplate($("templateFile").files[0]); });
+$("templateFile").addEventListener("change", function(){
+  var f=this.files[0];
+  if(f) $tmplInfo.textContent="已选择文件："+f.name+"（点击“载入 Excel 列头”读取）";
+});
+$btnSave.addEventListener("click", saveConfig);
+$btnParse.addEventListener("click", function(){ parseFile($("dataFile").files[0]); });
+$("dataFile").addEventListener("change", function(){ if(this.files[0]) $parseEmpty.style.display="none"; });
+document.addEventListener("keydown", function(e){ if(e.key==="Enter") e.preventDefault(); });
+
+/* ================= 树搜索 / 列过滤 / 单配置导出导入 ================= */
+var $treeSearch = $("treeSearch"), $treeResults = $("treeResults"),
+    $bindSearch = $("bindSearch"), $btnClearBindSearch = $("btnClearBindSearch"), $bindCountInfo = $("bindCountInfo");
+var $btnExportCfg = $("btnExportCfg"), $btnImportCfg = $("btnImportCfg"), $importCfgFile = $("importCfgFile");
+var treeKeyword = "", bindKeyword = "";
+
+function treeMatchText(s){ return String(s==null?"":s).toLowerCase().indexOf(treeKeyword) > -1; }
+function folderSubHasMatch(fid){
+  if (configsInFolder(fid).some(function(c){ return treeMatchText(c.name); })) return true;
+  return childFolders(fid).some(function(f){ return treeMatchText(f.name) || folderSubHasMatch(f.id); });
+}
+function hl(text){ if(!treeKeyword) return esc(text); return esc(text).replace(new RegExp("("+treeKeyword.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+")","ig"),"<mark>$1</mark>"); }
+
+/* 1) 配置树搜索定位：输入关键字后列出匹配项，点击直接定位 */
+function renderTreeSearchResults(){
+  if(!treeKeyword){
+    $("tree").style.display = "";
+    $treeResults.style.display = "none";
+    $treeResults.innerHTML = "";
+    return;
+  }
+  $("tree").style.display = "none";
+  var items = [];
+  function visitFolder(fid, pathArr){
+    childFolders(fid).forEach(function(f){
+      var fpath = pathArr.concat([f.name]);
+      var fself = treeMatchText(f.name);
+      if (fself) items.push({ kind:"folder", id:f.id, name:f.name, path:fpath });
+      if (fself || folderSubHasMatch(f.id)) visitFolder(f.id, fpath);
+    });
+    configsInFolder(fid).forEach(function(c){
+      if (treeMatchText(c.name)) items.push({ kind:"cfg", id:c.id, name:c.name, entity:c.entityName, path:pathArr });
+    });
+  }
+  visitFolder(null, []);
+  if (items.length===0){
+    $treeResults.innerHTML = '<div class="empty">未找到匹配的文件夹或配置。</div>';
+    $treeResults.style.display = "";
+    return;
+  }
+  var h = '<div class="trCount">匹配 ' + items.length + ' 项，点击定位：</div>';
+  items.forEach(function(it){
+    var p = (it.path && it.path.length) ? it.path.join(" / ") : "根目录";
+    h += '<div class="node trItem" data-kind="'+it.kind+'" data-id="'+it.id+'" title="'+esc(p)+'">'
+       + '<span class="icon">'+(it.kind==="cfg"?"📄":"📁")+'</span>'
+       + '<span class="nm">'+hl(it.name)+(it.entity? '<em>（'+esc(it.entity)+'）</em>':"")+'</span>'
+       + '</div><div class="trPath">'+esc(p)+'</div>';
+  });
+  $treeResults.innerHTML = h;
+  $treeResults.style.display = "";
+}
+
+/* 2) 绑定列过滤：仅视觉隐藏（bindHide），不影响保存/导出 */
+
+/* 3) 单配置 导出/导入（针对“当前编辑的配置”；开发→正式环境覆盖同步） */
+function pad2(n){ return n < 10 ? "0" + n : String(n); }
+function safeFileName(n){ return String(n==null?"config":n).replace(/[\\/:*?"<>|\s\u3000]+/g,"_").slice(0,60) || "config"; }
+function exportCurrentConfig(){
+  var cfg = buildConfig();       // 当前编辑内容（含名称/所属文件夹/字段绑定）
+  if (!cfg){ toast("请先填写“配置名称”再导出","err"); $cfgName.focus(); return; }
+  var d = new Date();
+  var ts = d.getFullYear() + pad2(d.getMonth()+1) + pad2(d.getDate()) + "-" + pad2(d.getHours()) + pad2(d.getMinutes()) + pad2(d.getSeconds());
+  var blob = new Blob([JSON.stringify(cfg, null, 2)], { type:"application/json" });
+  var a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "excelimport-config-" + safeFileName(cfg.name) + "-" + ts + ".json";
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(function(){ URL.revokeObjectURL(a.href); }, 1500);
+  toast("已导出当前配置「"+cfg.name+"」（"+cfg.fields.length+" 个字段）");
+}
+function importCurrentConfig(){
+  var f = $importCfgFile.files[0];
+  if (!f){ toast("请先选择配置文件","err"); return; }
+  var rd = new FileReader();
+  rd.onload = function(){
+    var cfg = null;
+    try { cfg = JSON.parse(rd.result); } catch (e) { toast("文件不是有效 JSON","err"); return; }
+    if (!cfg || !cfg.name){ toast("配置文件缺少 name 字段","err"); return; }
+
+    // 本环境已有同名配置 → 载入并沿用其 id（点“保存配置”即覆盖）；否则作为新配置载入
+    var match = null;
+    for (var i=0;i<configs.length;i++){ if (configs[i].name === cfg.name){ match = configs[i]; break; } }
+    currentId = match ? match.id : 0;
+
+    $cfgName.value = cfg.name || "";
+    $entityName.value = cfg.entityName || "";
+    $desc.value = cfg.description || "";
+    $headerRow.value = (cfg.headerRowIndex != null) ? cfg.headerRowIndex : 0;
+    sheetNames = cfg.sheetName ? [cfg.sheetName] : [];
+    fillSheetSel(cfg.sheetName || "");
+    columns = [];
+    bindings = (cfg.fields || []).map(function(f){
+      return { index:(f.columnIndex!=null?f.columnIndex:0), header:f.header||"", field:f.field||"",
+               type:f.dataType||"string", required:!!f.required };
+    }).filter(function(b){ return b.header || b.field; });
+    loadedFromConfig = true;
+    if ($bindSearch){ $bindSearch.value = ""; }
+    bindKeyword = "";
+    renderBindings();
+    syncFolderSel();
+    // 新配置：导入的 folderId 在本环境存在则跟随，否则放根目录
+    if (!match && cfg.folderId != null){
+      var exists = false;
+      for (var j=0;j<folders.length;j++){ if (folders[j].id === cfg.folderId){ exists = true; break; } }
+      if (exists) $folderSel.value = String(cfg.folderId);
+    }
+    syncEditorMeta();
+    renderTree();
+    clearMsg("saveMsg");
+    $tmplInfo.textContent = "已从文件载入配置「"+cfg.name+"」的绑定。请核对后点“保存配置”写入数据库。";
+    toast("已载入配置：" + cfg.name);
+  };
+  rd.readAsText(f);
+}
+
+$treeSearch.addEventListener("input", function(){
+  treeKeyword = $treeSearch.value.trim().toLowerCase();
+  renderTreeSearchResults();
+});
+$treeResults.addEventListener("click", function(e){
+  var n = e.target.closest ? e.target.closest(".trItem") : null;
+  if (!n) return;
+  var kind = n.getAttribute("data-kind"), id = Number(n.getAttribute("data-id"));
+  $treeSearch.value = ""; treeKeyword = "";
+  renderTreeSearchResults();
+  if (kind === "cfg") selectConfig(id);
+  else { selectedFolderId = id; renderTree(); updateFolderHint(); syncEditorMeta(); }
+});
+$bindSearch.addEventListener("input", function(){
+  bindKeyword = $bindSearch.value.trim().toLowerCase();
+  renderBindings();
+});
+$btnClearBindSearch.addEventListener("click", function(){
+  $bindSearch.value = ""; bindKeyword = "";
+  renderBindings();
+  $bindSearch.focus();
+});
+
+/* 删除单条列绑定 */
+function deleteBindingRow(i){
+  collectBindings();   // 先同步各输入框中的未保存改动，避免删行时丢失其它行的编辑
+  if (typeof i !== "number" || i < 0 || i >= bindings.length) return;
+  var removed = bindings.splice(i, 1)[0];
+  renderBindings();
+  toast("已删除列绑定" + (removed ? "：「" + (removed.header || removed.field || "") + "」" : ""), "ok");
+}
+$bindTbody.addEventListener("click", function(e){
+  var btn = e.target && e.target.closest ? e.target.closest(".rowDel") : null;
+  if (!btn) return;
+  var i = Number(btn.getAttribute("data-i"));
+  deleteBindingRow(i);
+});
+$btnExportCfg.addEventListener("click", exportCurrentConfig);
+$btnImportCfg.addEventListener("click", function(){ $importCfgFile.value=""; $importCfgFile.click(); });
+$importCfgFile.addEventListener("change", importCurrentConfig);
+
+/* 初始化 */
+refreshAll();
+newConfig();
+</script>
+</body>
+</html>

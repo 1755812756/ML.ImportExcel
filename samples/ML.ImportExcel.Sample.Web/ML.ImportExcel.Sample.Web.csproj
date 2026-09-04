@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <RootNamespace>ML.ImportExcel.Sample.Web</RootNamespace>
+    <AssemblyName>ML.ImportExcel.Sample.Web</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- 引用本地的 ML.ImportExcel 包源码工程 -->
+    <ProjectReference Include="..\..\src\ML.ImportExcel\ML.ImportExcel.csproj" />
+  </ItemGroup>
+
+  <!-- 语言包示例：把 ja.json 一并发布到 运行目录/ExcelLang（演示“加语系=放一个 json”） -->
+  <ItemGroup>
+    <None Include="languages\ja.json" CopyToOutputDirectory="PreserveNewest" Link="ExcelLang\ja.json" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,20 @@
+{
+  "parse.completed": "Parsing completed, {0} rows total, {1} succeeded, {2} failed.",
+  "parse.completedTooMany": "Parsing completed, {0} rows total, {1} succeeded, {2} failed (too many errors, only the first {3} are shown).",
+  "parse.failed": "Parsing failed.",
+  "parse.noConfig": "No import configuration was found. Please upload a template Excel and bind entity fields on the configuration page first.",
+  "parse.configNotFound": "Import configuration '{0}' was not found.",
+  "parse.sheetNotFound": "Unable to locate the worksheet for the configuration.",
+  "parse.noMatch": "No configuration matched. Please bind entity fields on the configuration page first.",
+  "parse.lowMatch": "Column header match is insufficient ({0}/{1}, score {2:P0}, threshold {3:P0}). You may have selected the wrong file, or more field bindings are required.",
+  "field.required": "Required field is empty",
+  "field.formatError": "Field format error: {0}",
+  "type.invalidInt": "Not a valid integer",
+  "type.invalidLong": "Not a valid integer (Long)",
+  "type.invalidDouble": "Not a valid number (Double)",
+  "type.invalidDecimal": "Not a valid number (Decimal)",
+  "type.invalidDateTime": "Not a valid date/time",
+  "type.invalidBool": "Not a valid boolean value",
+  "type.invalidNumber": "Invalid number",
+  "template.noSheet": "The workbook has no usable worksheet."
+}
